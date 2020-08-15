@@ -5,6 +5,7 @@ class ShortUrl < ApplicationRecord
 
   scope :active, ->() { where("expire_at > ?", DateTime.now) }
 
+  # TODO: uniqueness should probably be base on whether the short_url expired or not
   validates :slug, uniqueness: true, presence: true
   validates :original_url, presence: true, http_url: true
 
