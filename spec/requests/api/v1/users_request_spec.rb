@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe "Api::V1::Users", type: :request do
   describe "POST /users" do
     context "when the user data is valid" do
-      it "creates the user" do
+      let(:post_command) do
         post api_v1_users_path, 
               params: {
                 user: {
@@ -11,7 +11,10 @@ RSpec.describe "Api::V1::Users", type: :request do
                   password: FFaker::Internet.password
                 }
               }, as: :json
-        
+      end
+      
+      it "creates the user" do
+        expect { post_command }.to change(User, :count).by(1)
         expect(response).to have_http_status :created
       end
     end
