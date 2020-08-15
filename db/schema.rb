@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_08_13_185441) do
+ActiveRecord::Schema.define(version: 2020_08_15_041134) do
 
   create_table "short_urls", force: :cascade do |t|
     t.string "slug", null: false
@@ -19,6 +19,14 @@ ActiveRecord::Schema.define(version: 2020_08_13_185441) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["slug"], name: "index_short_urls_on_slug", unique: true
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "email", null: false
+    t.string "password_digest", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["email"], name: "index_users_on_email", unique: true
   end
 
 end
