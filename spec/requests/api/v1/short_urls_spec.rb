@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe "Short URL", type: :request do
+RSpec.describe "Api::V1::ShortUrls", type: :request do
   before do
     @short_url = create(:short_url)
   end
