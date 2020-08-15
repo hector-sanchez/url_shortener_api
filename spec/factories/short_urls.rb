@@ -7,5 +7,9 @@ FactoryBot.define do
     trait :expired do
       expire_at { 1.day.ago }
     end
+
+    trait :with_user do
+      user
+    end
   end
 end

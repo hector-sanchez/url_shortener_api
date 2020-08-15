@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_08_15_041134) do
+ActiveRecord::Schema.define(version: 2020_08_15_072316) do
 
   create_table "short_urls", force: :cascade do |t|
     t.string "slug", null: false
@@ -18,7 +18,9 @@ ActiveRecord::Schema.define(version: 2020_08_15_041134) do
     t.string "original_url", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "user_id"
     t.index ["slug"], name: "index_short_urls_on_slug", unique: true
+    t.index ["user_id"], name: "index_short_urls_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -29,4 +31,5 @@ ActiveRecord::Schema.define(version: 2020_08_15_041134) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
+  add_foreign_key "short_urls", "users"
 end

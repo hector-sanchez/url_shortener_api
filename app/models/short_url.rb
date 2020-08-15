@@ -1,6 +1,8 @@
 class ShortUrl < ApplicationRecord
   include SlugRandomizable
 
+  belongs_to :user, optional: true
+
   after_initialize :generate_slug
 
   scope :active, ->() { where("expire_at > ?", DateTime.now) }
