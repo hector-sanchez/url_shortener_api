@@ -123,7 +123,7 @@ RSpec.describe "Api::V1::ShortUrls", type: :request do
         it "does not expire the short url" do
           delete_command
 
-          expect(response).to have_http_status(:unauthorized)
+          expect(response).to have_http_status(:forbidden)
           expect(@other_short_url.reload.expired?).to eq false
         end
       end
@@ -133,7 +133,7 @@ RSpec.describe "Api::V1::ShortUrls", type: :request do
       it "the request is unauthorized" do
         delete api_v1_short_url_path(@short_url), as: :json
 
-        expect(response).to have_http_status :unauthorized
+        expect(response).to have_http_status :forbidden
         expect(@short_url.reload.expired?).to eq false
       end
     end

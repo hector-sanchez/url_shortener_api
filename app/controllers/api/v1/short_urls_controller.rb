@@ -1,5 +1,6 @@
 class Api::V1::ShortUrlsController < ApplicationController
   before_action :set_short_url, only: %i[destroy show]
+  before_action :check_owner, only: :destroy
 
   def index
     # should we render ALL active urls or check if the user is authenticated and show only his/hers??
@@ -21,15 +22,15 @@ class Api::V1::ShortUrlsController < ApplicationController
   end
 
   def destroy
-    if current_user && current_user.id == @short_url.user_id
-      @short_url.expire!
-      head :no_content
-    else
-      head :unauthorized
-    end
+    @short_url.expire!
+    head :no_content
   end
 
   private
+
+  def check_owner
+    head :forbidden unless current_user.present? && current_user.id == @short_url.user_id
+  end
 
     def set_short_url
       @short_url = ShortUrl.find(params[:id])
