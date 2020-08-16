@@ -20,7 +20,7 @@ Besides the url to shorten, the service accepts three additional and optional ar
 
 I used Postman to test. 
 
-**Short Urls**
+**SHORT URL**
 
 ***GET list of active (unexpired) short urls*** - /api/v1/short_urls
 
@@ -33,3 +33,18 @@ I used Postman to test.
 
 ***DELETE expire short url*** - /api/v1/short_url/:id
   * (valid authorization token must be in the request otherwise it will fail) headers: Authorization -> "encoded token"
+
+
+**USER**
+
+***POST create user** - /api/v1/users
+
+ * { "user":{"email":"someemail@user.com", "password":"password1"}}
+ 
+
+**TOKEN**
+
+**POST create login token** - /api/v1/tokens
+
+ * { "user":{"email":"someemail@user.com", "password":"password1"}}
+ 
