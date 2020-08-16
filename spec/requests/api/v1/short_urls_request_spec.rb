@@ -25,8 +25,8 @@ RSpec.describe "Api::V1::ShortUrls", type: :request do
     it "renders short url" do
       get api_v1_short_urls_path(@short_url), as: :json
 
-      json_response = JSON.parse(response.body).first
-
+      json_response = JSON.parse(response.body)["data"][0]["attributes"]
+      
       expect(json_response["slug"]).to eq @short_url.slug
       expect(json_response["original_url"]).to eq @short_url.original_url
     end
@@ -67,8 +67,8 @@ RSpec.describe "Api::V1::ShortUrls", type: :request do
           expect(response).to have_http_status :created
 
           json_response = JSON.parse(response.body)
-          
-          expect(json_response["user_id"]).to eq user.id
+
+          expect(json_response["data"]["attributes"]["user_id"]).to eq user.id
         end
       end
     end
