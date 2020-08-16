@@ -2,6 +2,7 @@ class Api::V1::ShortUrlsController < ApplicationController
   before_action :set_short_url, only: %i[destroy show]
 
   def index
+    # should we render ALL active urls or check if the user is authenticated and show only his/hers??
     render json: ShortUrl.active
   end
 
@@ -10,7 +11,7 @@ class Api::V1::ShortUrlsController < ApplicationController
   end
 
   def create
-    short_url = ShortUrl.new(short_url_params)
+    short_url = ShortUrl.new(short_url_params.merge(user_id: current_user&.id))
 
     if short_url.save
       render json: short_url, status: :created
@@ -20,8 +21,12 @@ class Api::V1::ShortUrlsController < ApplicationController
   end
 
   def destroy
-    @short_url.expire!
-    head 204
+    if current_user && current_user.id == @short_url.user_id
+      @short_url.expire!
+      head :no_content
+    else
+      head :unauthorized
+    end
   end
 
   private

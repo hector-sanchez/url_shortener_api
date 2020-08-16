@@ -34,17 +34,42 @@ RSpec.describe "Api::V1::ShortUrls", type: :request do
 
   describe "POST /short_urls" do
     context "when the short url data is valid" do
-      it "the short url is created" do
-        post api_v1_short_urls_path,
-              params: { 
-                short_url: { 
-                  slug: FFaker::Internet.slug, 
-                  original_url: FFaker::Internet.http_url, 
-                  expire_at: 5.days.from_now,
-                }
-              }, as: :json
-        
-        expect(response).to have_http_status :created
+      context "when the user authentication token is not in the header" do
+        it "the short url is created" do
+          post api_v1_short_urls_path,
+                params: { 
+                  short_url: { 
+                    slug: FFaker::Internet.slug, 
+                    original_url: FFaker::Internet.http_url, 
+                    expire_at: 5.days.from_now,
+                  }
+                }, as: :json
+          
+          expect(response).to have_http_status :created
+        end
+      end
+      
+      context "when the user authentication token is in the header" do
+        let(:user) { create(:user) }
+
+        it "the short url is created" do
+          post api_v1_short_urls_path,
+                params: { 
+                  short_url: { 
+                    slug: FFaker::Internet.slug, 
+                    original_url: FFaker::Internet.http_url, 
+                    expire_at: 5.days.from_now,
+                  }
+                },
+                headers: {
+                  Authorization: JsonWebToken.encode(user_id: user.id)
+                }, as: :json
+          expect(response).to have_http_status :created
+
+          json_response = JSON.parse(response.body)
+          
+          expect(json_response["user_id"]).to eq user.id
+        end
       end
     end
 
@@ -70,11 +95,47 @@ RSpec.describe "Api::V1::ShortUrls", type: :request do
   end
 
   describe "DELETE /short_url/:id" do
-    it "expires the short url" do
-      delete api_v1_short_url_path(@short_url), as: :json
+    context "when the user authentication token is in the header" do
+      before do 
+        @user = create(:user)
+        @other_short_url = create(:short_url, user: @user)
+      end
 
-      expect(response).to have_http_status :no_content
-      expect(@short_url.reload.expired?).to eq true
+      let(:delete_command) do 
+        delete api_v1_short_url_path(@other_short_url),
+                headers: { Authorization: JsonWebToken.encode(user_id: user.id) }, as: :json 
+      end
+
+      context "when the short url belongs to the authenticated user" do
+        let(:user) { @user }
+
+        it "deletes (expires) the short url" do
+          delete_command
+
+          expect(response).to have_http_status(:no_content)
+          expect(@other_short_url.reload.expired?).to eq true
+        end
+      end
+
+      context "when the short url does not belong to the authenticated user" do
+        let(:user) { create(:user) }
+        
+        it "does not expire the short url" do
+          delete_command
+
+          expect(response).to have_http_status(:unauthorized)
+          expect(@other_short_url.reload.expired?).to eq false
+        end
+      end
+    end
+    
+    context "when the user authentication token is not in the header" do
+      it "the request is unauthorized" do
+        delete api_v1_short_url_path(@short_url), as: :json
+
+        expect(response).to have_http_status :unauthorized
+        expect(@short_url.reload.expired?).to eq false
+      end
     end
   end
 end
